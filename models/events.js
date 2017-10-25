@@ -31,6 +31,23 @@ Events.findAllForUser = (req, res, next) => {
     });
 };
 
+Events.findUsersForEvent = (req, res, next) => {
+  const eventId = req.params.id
+  db.many(`SELECT * FROM users
+    JOIN events_users
+    ON events_users.userId = users.id
+    JOIN events
+    ON events.id = events_users.eventId
+    WHERE events.id = $1`. [eventId])
+    .then((users) => {
+      res.locals.users = users;
+      next();
+    })
+    .catch(err => {
+      console.log('Error getting data from database');
+    });
+};
+
 // get one event
 Events.findById = (req, res, next) => {
   const myId = req.params.id;
@@ -46,10 +63,10 @@ Events.findById = (req, res, next) => {
 
 // make a new event
 Events.create = (req, res, next) => {
-  const { name, year, grapes, country, region, description, picture, price } = req.body;
-  db.one(`INSERT INTO events (name, year, grapes, country, region, description, picture, price)
-  VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
-  [name, year, grapes, country, region, description, picture, price])
+  const { name, description, time } = req.body;
+  db.one(`INSERT INTO events (name, description, time)
+  VALUES ($1, $2, $3) RETURNING id`,
+  [name, description, time])
     .then((event) => {
       res.locals.event = event;
       next();
@@ -65,12 +82,12 @@ Events.create = (req, res, next) => {
   // update a event's info
   Events.update = (req, res, next) => {
     const { id } = req.params;
-    const { name, year, grapes, country, region, description, picture, price } = req.body;
+    const { name, description, time } = req.body;
 
     db.one(`UPDATE events
-      SET name = $1, year = $2, grapes = $3, country = $4, region = $5, description = $6, picture = $7, price = $8 WHERE id = $9
+      SET name = $1, description = $2, time = $3 WHERE id = $4
       RETURNING id`,
-      [name, year, grapes, country, region, description, picture, price, id])
+      [name, description, time])
       .then((event) => {
         res.locals.event = event;
         next();
