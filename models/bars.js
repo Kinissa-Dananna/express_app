@@ -11,7 +11,7 @@ const Bars = {}
 
 Bars.findAllByEventId = (req, res, next) => {
     const eventId = req.params.eventId;
-    db.one(
+    db.manyOrNone(
         'SELECT * FROM bars WHERE eventId=$1', [eventId] // use the id here
     ).then(data => {
     //console.log(data);
@@ -20,15 +20,37 @@ Bars.findAllByEventId = (req, res, next) => {
     });
 };
 
-// Bars.findAllBarData = (req, res, next) => {
-//   const bars = res.locals.bars;
-//   // const barId = req.params.barId;
-//   // const lat = req.params.lat;
-//   // const long = req.params.long;
-//
-//
-//
-// }
+Bars.findAllBarData = (req, res, next) => {
+  const bars = res.locals.bars;
+  let barDataCalls = [];
+
+  bars.forEach((bar) => {
+    let barId = bar.barid;
+    barDataCalls.push(axios.get(`https://api.foursquare.com/v2/venues/${barId}?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&v=${DATE}`));
+  });
+  axios.all(barDataCalls)
+    .then(response => {
+      res.locals.arrayResults = [];
+      response.forEach((response) => {
+        let arrayResults = [];
+        name = response.data.response.venue.name;
+        address = response.data.response.venue.location.address;
+        price = response.data.response.venue.price.message;
+        rating = response.data.response.venue.rating;
+        hereNow = response.data.response.venue.hereNow.count;
+        if(hereNow === 0) { hereNow = response.data.response.venue.hereNow.summary; }
+        arrayResults.push({
+          name: name,
+          address: address,
+          price: price,
+          rating: rating,
+          hereNow: hereNow
+        })
+        res.locals.arrayResults.push(arrayResults);
+      })
+      next();
+    })
+}
 
 Bars.findOneBarById = (req, res, next) => {
   const eventId = req.params.eventId;
@@ -43,29 +65,46 @@ Bars.findOneBarById = (req, res, next) => {
 
 Bars.findOneBarData = (req, res, next) => {
   const barId = res.locals.bar.barid;
+  let arrayResults = [];
+  let name, address, price, rating, hereNow;
 
   axios.get(
       `https://api.foursquare.com/v2/venues/${barId}?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&v=${DATE}`
   ).then(response => {
 //    console.log(response.data.response);
-      const barData = response.data.response;
-      res.locals.barData = barData;
+      //const barData = response.data.response;
+      //res.locals.barData = barData;
+      name = response.data.response.venue.name;
+      console.log('name', name);
+      address = response.data.response.venue.location.address;
+      price = response.data.response.venue.price.message;
+      rating = response.data.response.venue.rating;
+      hereNow = response.data.response.venue.hereNow.count;
+      if(hereNow === 0) { hereNow = response.data.response.venue.hereNow.summary; }
+      arrayResults.push({
+        name: name,
+        address: address,
+        price: price,
+        rating: rating,
+        hereNow: hereNow
+      })
+      res.locals.arrayResults = arrayResults;
       next();
   }).catch(err => console.log('error in Bars.findOneBarData', err));
 
 }
-//
-// Bars.searchBars = (req, res, next) => {
-//     console.log('search');
-//     const { searchTerm } = req.params;
-//     axios.post(
-//         `https://api.foursquare.com/v2/venues/search?ll=40.741514,-73.989592&query=${searchTerm}&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&v=${DATE}`
-//     ).then(response => {
-//         // const fiveResults = response.data.predictions;
-//         // res.locals.fiveResults = fiveResults;
-//         next();
-//     }).catch(err => console.log('error in places.search ', err));
-// }
+
+Bars.searchBars = (req, res, next) => {
+    console.log('search');
+    const { searchTerm } = req.params;
+    axios.get(
+        `https://api.foursquare.com/v2/venues/search?ll=40.741514,-73.989592&query=${searchTerm}&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&v=${DATE}`
+    ).then(response => {
+        // const fiveResults = response.data.predictions;
+        // res.locals.fiveResults = fiveResults;
+        next();
+    }).catch(err => console.log('error in places.search ', err));
+}
 
 //--------------------------------------------------------------
 //--------------------------- API ROUTES ---------------------

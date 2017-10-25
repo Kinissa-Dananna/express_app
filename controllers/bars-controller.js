@@ -4,9 +4,12 @@ const Bars = require('../models/bars');
 // get controller homepage
 router.get('/:eventId',
  Bars.findAllByEventId,
+ Bars.findAllBarData,
  (req, res) => {
-     const { bars } = res.locals;
-     res.json({ bars: bars });
+    //  const { bars } = res.locals;
+    //  res.json({ bars: bars });
+    const { arrayResults } = res.locals;
+    res.json(arrayResults);
 });
 
 //get obj by id
@@ -14,11 +17,8 @@ router.get('/:eventId/:id',
  Bars.findOneBarById,
  Bars.findOneBarData,
  (req, res) => {
-   const { bar } = res.locals;
-   const barData = res.locals.barData;
-   res.json({
-     barData: barData
-    });
+   const { arrayResults } = res.locals;
+   res.json(arrayResults);
 });
 
 
