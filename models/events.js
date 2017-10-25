@@ -1,10 +1,10 @@
 const db = require('../db/config');
 const Events = {};
 
-// get all events
+// get all events owned by this user
 Events.findAllForOwner = (req, res, next) => {
-  const userId = req.params.ownerId
-  db.many('SELECT * FROM events WHERE ownerId = $1'. [ownerId])
+  const ownerId = req.user.id;
+  db.manyOrNone('SELECT * FROM events WHERE ownerId = $1', [ownerId])
     .then((events) => {
       res.locals.events = events;
       next();
@@ -14,14 +14,15 @@ Events.findAllForOwner = (req, res, next) => {
     });
 };
 
+// get all events linked to this user by the join table
 Events.findAllForUser = (req, res, next) => {
-  const userId = req.user.id
-  db.many(`SELECT * FROM events
+  const userId = req.user.id;
+  db.manyOrNone(`SELECT events.* FROM events
     JOIN events_users
     ON events_users.eventId = events.id
     JOIN users
     ON users.id = events_users.userId
-    WHERE users.id = $1`. [userId])
+    WHERE users.id = $1`, [userId])
     .then((events) => {
       res.locals.events = events;
       next();
@@ -31,14 +32,15 @@ Events.findAllForUser = (req, res, next) => {
     });
 };
 
+// find all users linked to an event by the join table
 Events.findUsersForEvent = (req, res, next) => {
   const eventId = req.params.id
-  db.many(`SELECT * FROM users
+  db.manyOrNone(`SELECT users.name, users.email FROM users
     JOIN events_users
     ON events_users.userId = users.id
     JOIN events
     ON events.id = events_users.eventId
-    WHERE events.id = $1`. [eventId])
+    WHERE events.id = $1`, [eventId])
     .then((users) => {
       res.locals.users = users;
       next();
@@ -48,7 +50,7 @@ Events.findUsersForEvent = (req, res, next) => {
     });
 };
 
-// get one event
+// get one event by id
 Events.findById = (req, res, next) => {
   const myId = req.params.id;
   db.one('SELECT * FROM events WHERE id = $1', [myId])
@@ -63,10 +65,10 @@ Events.findById = (req, res, next) => {
 
 // make a new event
 Events.create = (req, res, next) => {
-  const { name, description, time } = req.body;
-  db.one(`INSERT INTO events (name, description, time)
-  VALUES ($1, $2, $3) RETURNING id`,
-  [name, description, time])
+  const { name, description, time, ownerId } = req.body;
+  db.one(`INSERT INTO events (name, description, time, ownerId)
+  VALUES ($1, $2, $3, $4) RETURNING id`,
+  [name, description, time, ownerId])
     .then((event) => {
       res.locals.event = event;
       next();
@@ -104,14 +106,29 @@ Events.create = (req, res, next) => {
   Events.delete = (req, res, next) => {
     const { id } = req.params;
 
-    db.many('DELETE FROM events WHERE id = $1 RETURNING *', [id])
-      .then((events) => {
-        res.locals.events = events;
-        next();
-      })
+    db.none('DELETE FROM events WHERE id = $1', [id])
       .catch(err => {
-        console.log('Error getting data from database');
+        console.log('Error deleting data from database');
       });
   };
 
-module.exports = event;
+// add a row in the join table connecting a user to an event
+Events.addUserToEvent = (req, res, next) => {
+  const eventId = req.params.id
+  const userId = req.body.userId;
+  db.one(`INSERT INTO events_users (eventId, userId)
+  VALUES ($1, $2) RETURNING *`,
+  [eventId, userId])
+    .then((pair) => {
+      res.locals.pair = pair;
+      next();
+    })
+    .catch(err => {
+      console.log('Error posting data to database');
+      res.status(500).json({
+        message: 'could not add user to event'
+      });
+    });
+  };
+
+module.exports = Events;

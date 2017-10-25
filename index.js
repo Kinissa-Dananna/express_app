@@ -24,6 +24,7 @@ app.use(Auth.authenticate);
 // set up base routes
 app.use('/users', require('./controllers/users_controller'));
 app.use('/login', require('./controllers/sessions_controller'));
+app.use('/events', require('./controllers/events_controller'));
 
 // listen on port and run server
 app.listen(port, () => console.log('server listening on ' + port));

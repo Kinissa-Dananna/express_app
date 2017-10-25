@@ -2,38 +2,51 @@ const router = require('express').Router();
 const Events = require('../models/Events');
 const Auth = require('../services/auth');
 
-// get all Eventss
-router.get('/', Events.findAll, (req, res) => {
+// get all Events for a user
+router.get('/', Auth.restrict, Events.findAllForUser, (req, res) => {
   const events = res.locals.events;
 
   res.json(events);
 });
 
-// get one Event by id
-router.get('/:id', Events.findById, Events.findUsersForEvent, (req, res) => {
+// get all events a user owns
+router.get('/owned', Auth.restrict, Events.findAllForOwner, (req, res) => {
+  const events = res.locals.events;
+
+  res.json(events);
+});
+
+// add a user to an event
+router.post('/newuser/:id', Auth.restrict, Events.addUserToEvent, (req, res) => {
+  const pair = res.locals.pair;
+
+  res.json(pair);
+});
+
+// get one Event and its users by event id
+router.get('/:id', Auth.restrict, Events.findById, Events.findUsersForEvent, (req, res) => {
   const event = res.locals.event;
-  const event.users = res.locals.users;
+  event.users = res.locals.users;
 
   res.json(event);
 });
 
 // add a new Event
-router.post('/', Events.create, (req, res) => {
-  const events = res.locals.events;
+router.post('/', Auth.restrict, Events.create, (req, res) => {
+  const event = res.locals.event;
 
-  res.json(events);
+  res.json(event);
 });
 
-// edit an existing Events
-router.put('/:id', Events.update, (req, res) => {
+// edit an existing Event
+router.put('/:id', Auth.restrict, Events.update, (req, res) => {
   const event = res.locals.event;
 
   res.json(event);
 });
 
 // delete an Event
-router.delete('/:id', Events.delete, (req, res) => {
-  const event = res.locals.event;
+router.delete('/:id', Auth.restrict, Events.delete, (req, res) => {
 
   res.json({message: 'Event successfully deleted!'});
 });

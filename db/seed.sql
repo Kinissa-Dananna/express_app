@@ -11,12 +11,13 @@ CREATE TABLE users (
   token VARCHAR NOT NULL
 );
 
-CREATE TABLE events {
+CREATE TABLE events (
   id SERIAL PRIMARY KEY,
+  ownerId INTEGER,
   name VARCHAR(255),
   description VARCHAR(255),
   time TIMESTAMP NOT NULL
-}
+);
 
 CREATE TABLE bars (
   id SERIAL PRIMARY KEY,
@@ -24,9 +25,9 @@ CREATE TABLE bars (
   lat DOUBLE PRECISION,
   long DOUBLE PRECISION,
   name VARCHAR(255)
-)
+);
 
 CREATE TABLE events_users (
   eventId INTEGER,
   userId INTEGER
-)
+);
