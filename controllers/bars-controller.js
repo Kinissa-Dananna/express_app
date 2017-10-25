@@ -26,29 +26,20 @@ router.get('/:eventId/:id',
 //--------------------------- API ROUTES ---------------------
 //--------------------------------------------------------------
 
-// post new
-// router.post('/new',
-//   Bars.create,
-// (req, res) => {
-//         const { arrayResults } = res.locals;
-//         res.json(arrayResults);
-//     });
-//
-//
-// // update
-//  router.put('/:id',
-//     Bars.update,
-// (req, res) => {
-//         const { arrayResults } = res.locals;
-//         res.json(arrayResults);
-//     });
-//
-// // delete
-// router.delete('/:id',
-//   Bars.destroy,
-// (req, res) => {
-//         const { arrayResults } = res.locals;
-//         res.json(arrayResults);
-//     });
+//post new
+router.post('/:eventId/new',
+  Bars.create,
+(req, res) => {
+        const { arrayResults } = res.locals;
+        res.json(arrayResults);
+    });
+
+
+// delete
+router.delete('/:eventId/:id',
+  Bars.destroy,
+(req, res) => {
+      res.send('Deleted from DB.');
+    });
 
 module.exports = router;
