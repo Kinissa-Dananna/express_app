@@ -17,7 +17,7 @@ router.get('/owned', Auth.restrict, Events.findAllForOwner, (req, res) => {
 });
 
 // add a user to an event
-router.post('/newuser/:id', Auth.restrict, Events.addUserToEvent, (req, res) => {
+router.post('/:id/newuser', Auth.restrict, Events.addUserToEvent, (req, res) => {
   const pair = res.locals.pair;
 
   res.json(pair);
@@ -33,7 +33,7 @@ router.get('/:id',
   (req, res) => {
     const event = res.locals.event;
     event.owner = res.locals.owner;
-    event.users = res.locals.users;
+    event.attendees = res.locals.users;
     event.bars = res.locals.bars;
     res.json(event);
 });
@@ -52,8 +52,21 @@ router.put('/:id', Auth.restrict, Events.update, (req, res) => {
   res.json(event);
 });
 
+router.delete('/:eventId/self',
+  Auth.restrict,
+  Events.removeUser,
+  (req, res) => {
+  console.log('deleting user');
+  const event = res.locals.event;
+
+  res.json({message: "successfully removed user from event"});
+});
+
 // delete an Event
-router.delete('/:id', Auth.restrict, Events.delete, (req, res) => {
+router.delete('/:id',
+  Auth.restrict,
+  Events.delete,
+  (req, res) => {
 
   res.json({message: 'Event successfully deleted!'});
 });

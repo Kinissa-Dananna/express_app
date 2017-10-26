@@ -1,8 +1,10 @@
 const router = require('express').Router();
 const Bars = require('../models/bars');
+const Auth = require('../services/auth');
 
 // get controller homepage
 router.get('/:eventId',
+Auth.restrict,
  Bars.findAllByEventId,
  Bars.findAllBarData,
  (req, res) => {
@@ -14,6 +16,7 @@ router.get('/:eventId',
 
 //get obj by id
 router.get('/:eventId/:id',
+Auth.restrict,
  Bars.findOneBarById,
  Bars.findOneBarData,
  (req, res) => {
@@ -28,6 +31,7 @@ router.get('/:eventId/:id',
 
 //post new
 router.post('/:eventId/new',
+Auth.restrict,
   Bars.create,
 (req, res) => {
         const { arrayResults } = res.locals;
@@ -37,6 +41,7 @@ router.post('/:eventId/new',
 
 // delete
 router.delete('/:eventId/:id',
+Auth.restrict,
   Bars.destroy,
 (req, res) => {
       res.send('Deleted from DB.');

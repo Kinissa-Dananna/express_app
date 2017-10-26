@@ -3,7 +3,7 @@ const Events = {};
 
 // get all events owned by this user
 Events.findAllForOwner = (req, res, next) => {
-  const ownerId = req.user.id;
+  const ownerId = 1//req.user.id;
   db.manyOrNone('SELECT * FROM events WHERE ownerId = $1', [ownerId])
     .then((events) => {
       res.locals.events = events;
@@ -14,6 +14,7 @@ Events.findAllForOwner = (req, res, next) => {
     });
 };
 
+// find an event's owner
 Events.findOwnerForEvent = (req, res, next) => {
   const ownerId = res.locals.event.ownerId;
   db.manyOrNone('SELECT name, email FROM users WHERE id = $1', [ownerId])
@@ -89,7 +90,8 @@ Events.findById = (req, res, next) => {
 
 // make a new event
 Events.create = (req, res, next) => {
-  const { name, description, time, ownerId } = req.body;
+  const ownerId = req.user.id;
+  const { name, description, time } = req.body;
   db.one(`INSERT INTO events (name, description, time, ownerId)
   VALUES ($1, $2, $3, $4) RETURNING id`,
   [name, description, time, ownerId])
@@ -145,6 +147,23 @@ Events.addUserToEvent = (req, res, next) => {
   [eventId, userId])
     .then((pair) => {
       res.locals.pair = pair;
+      next();
+    })
+    .catch(err => {
+      console.log('Error posting data to database');
+      res.status(500).json({
+        message: 'could not add user to event'
+      });
+    });
+  };
+
+Events.removeUser = (req, res, next) => {
+  const eventId = req.params.eventId
+  const userId = req.user.id;
+  db.none(`DELETE FROM events_users
+  WHERE eventId = $1 AND userId = $2`,
+  [eventId, userId])
+    .then(() => {
       next();
     })
     .catch(err => {

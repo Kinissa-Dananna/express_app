@@ -6,7 +6,7 @@ const express = require('express'),
       port = process.env.PORT || 8080,
       Auth = require('./services/auth'),
       cors = require('cors');
-      
+
 require('dotenv').config();
 // use cors so we can talk to our other server
 app.use(cors());
@@ -26,7 +26,7 @@ app.use(Auth.authenticate);
 app.use('/users', require('./controllers/users_controller'));
 app.use('/login', require('./controllers/sessions_controller'));
 app.use('/events', require('./controllers/events_controller'));
-
+app.use('/search', require('./controllers/search_controller'));
 app.use('/api', require('./controllers/bars-controller'));
 
 // listen on port and run server
