@@ -109,13 +109,13 @@ Events.create = (req, res, next) => {
 
   // update a event's info
   Events.update = (req, res, next) => {
-    const { id } = req.params;
+    const  id  = req.params.id;
     const { name, description, time } = req.body;
 
     db.one(`UPDATE events
       SET name = $1, description = $2, time = $3 WHERE id = $4
       RETURNING id`,
-      [name, description, time])
+      [name, description, time, id])
       .then((event) => {
         res.locals.event = event;
         next();
