@@ -90,7 +90,8 @@ Events.findById = (req, res, next) => {
 
 // make a new event
 Events.create = (req, res, next) => {
-  const { name, description, time, ownerId } = req.body;
+  const ownerId = req.user.id;
+  const { name, description, time } = req.body;
   db.one(`INSERT INTO events (name, description, time, ownerId)
   VALUES ($1, $2, $3, $4) RETURNING id`,
   [name, description, time, ownerId])
