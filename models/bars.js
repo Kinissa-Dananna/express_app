@@ -86,7 +86,8 @@ Bars.findOneBarData = (req, res, next) => {
       description = response.data.response.venue.description ? response.data.response.venue.description : 'No description available.',
       daysOpen = response.data.response.venue.hours.timeframes[0].days,
       hoursOpen = response.data.response.venue.hours.timeframes[0].open[0].renderedTime,
-      hoursUntilClosed = response.data.response.venue.hours.status;
+      hoursUntilClosed = response.data.response.venue.hours.status,
+      url = response.data.response.venue.canonicalUrl;
       arrayResults = {
         name: name,
         address: {
@@ -101,7 +102,8 @@ Bars.findOneBarData = (req, res, next) => {
         description: description,
         daysOpen: daysOpen,
         hoursOpen: hoursOpen,
-        hoursUntilClosed: hoursUntilClosed
+        hoursUntilClosed: hoursUntilClosed,
+        url: url
       }
       res.locals.arrayResults = arrayResults;
       next();
