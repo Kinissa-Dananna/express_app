@@ -94,14 +94,34 @@ Bars.findOneBarData = (req, res, next) => {
 
 }
 
+Bars.searchNearbyBars = (req, res, next) => {
+    console.log('search');
+    const  searchTerm  = req.params.barQuery;
+    const lat = res.locals.latLong.lat;
+    const long = res.locals.latLong.lng;
+    axios.get(
+        `https://api.foursquare.com/v2/venues/search?ll=${lat},${long}&categoryId=4d4b7105d754a06376d81259&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&v=${DATE}&limit=5`
+    ).then(response => {
+         const fiveResults = response.data.response.venues;
+         res.locals.fiveResults = fiveResults.map( result => {
+           return {barId: result.id, name: result.name, lat: result.location.lat, long: result.location.lng}
+         });
+        next();
+    }).catch(err => console.log('error in places.search ', err));
+}
+
 Bars.searchBars = (req, res, next) => {
     console.log('search');
-    const { searchTerm } = req.params;
+    const  searchTerm  = req.params.barQuery;
+    const lat = res.locals.latLong.lat;
+    const long = res.locals.latLong.lng;
     axios.get(
-        `https://api.foursquare.com/v2/venues/search?ll=40.741514,-73.989592&query=${searchTerm}&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&v=${DATE}`
+        `https://api.foursquare.com/v2/venues/search?ll=${lat},${long}&query=${searchTerm}&categoryId=4d4b7105d754a06376d81259&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&v=${DATE}&limit=5`
     ).then(response => {
-        // const fiveResults = response.data.predictions;
-        // res.locals.fiveResults = fiveResults;
+         const fiveResults = response.data.response.venues;
+         res.locals.fiveResults = fiveResults.map( result => {
+           return {barId: result.id, name: result.name, lat: result.location.lat, long: result.location.lng}
+         });
         next();
     }).catch(err => console.log('error in places.search ', err));
 }
@@ -111,7 +131,7 @@ Bars.searchBars = (req, res, next) => {
 //--------------------------------------------------------------
 
 Bars.create = (req, res, next) => {
-  const { eventId } = req.params;
+  const eventId = req.params.eventId;
   console.log(eventId);
  // const eventId = req.body.eventId,
   const  barId = req.body.barId,
@@ -125,7 +145,7 @@ Bars.create = (req, res, next) => {
     console.log('Data: ' + data);
     res.locals.arrayResults = data;
     next();
-  });
+  }).catch(err => console.log('error posting bar ', err));
 
 }
 

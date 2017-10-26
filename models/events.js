@@ -3,7 +3,7 @@ const Events = {};
 
 // get all events owned by this user
 Events.findAllForOwner = (req, res, next) => {
-  const ownerId = req.user.id;
+  const ownerId = 1//req.user.id;
   db.manyOrNone('SELECT * FROM events WHERE ownerId = $1', [ownerId])
     .then((events) => {
       res.locals.events = events;
@@ -14,8 +14,9 @@ Events.findAllForOwner = (req, res, next) => {
     });
 };
 
+// find an event's owner
 Events.findOwnerForEvent = (req, res, next) => {
-  const ownerId = res.locals.event.ownerId;
+  const ownerId = 1//res.locals.event.ownerId;
   db.manyOrNone('SELECT name, email FROM users WHERE id = $1', [ownerId])
     .then((owner) => {
       res.locals.owner = owner;
@@ -28,7 +29,7 @@ Events.findOwnerForEvent = (req, res, next) => {
 
 // get all events linked to this user by the join table
 Events.findAllForUser = (req, res, next) => {
-  const userId = req.user.id;
+  const userId = 1//req.user.id;
   db.manyOrNone(`SELECT events.* FROM events
     JOIN events_users
     ON events_users.eventId = events.id
