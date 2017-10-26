@@ -50,6 +50,18 @@ Events.findUsersForEvent = (req, res, next) => {
     });
 };
 
+Events.findBarsForEvent = (req, res, next) => {
+  const eventId = res.locals.event.id;
+  db.manyOrNone('SELECT * FROM bars WHERE eventId = $1',  [eventId])
+    .then((bars) => {
+      res.locals.bars = bars;
+      next();
+    })
+    .catch(err => {
+      console.log('Error getting data from database');
+    });
+};
+
 // get one event by id
 Events.findById = (req, res, next) => {
   const myId = req.params.id;
