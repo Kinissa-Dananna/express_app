@@ -14,6 +14,18 @@ Events.findAllForOwner = (req, res, next) => {
     });
 };
 
+Events.findOwnerForEvent = (req, res, next) => {
+  const ownerId = res.locals.event.ownerId;
+  db.manyOrNone('SELECT name, email FROM users WHERE id = $1', [ownerId])
+    .then((owner) => {
+      res.locals.owner = owner;
+      next();
+    })
+    .catch(err => {
+      console.log('Error getting data from database');
+    });
+};
+
 // get all events linked to this user by the join table
 Events.findAllForUser = (req, res, next) => {
   const userId = req.user.id;

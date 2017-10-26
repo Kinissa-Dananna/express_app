@@ -24,12 +24,18 @@ router.post('/newuser/:id', Auth.restrict, Events.addUserToEvent, (req, res) => 
 });
 
 // get one Event and its users by event id
-router.get('/:id', Auth.restrict, Events.findById, Events.findUsersForEvent, Events.findBarsForEvent, (req, res) => {
-  const event = res.locals.event;
-  event.users = res.locals.users;
-  event.bars = res.locals.bars;
-
-  res.json(event);
+router.get('/:id',
+  Auth.restrict,
+  Events.findById,
+  Events.findUsersForEvent,
+  Events.findOwnerForEvent,
+  Events.findBarsForEvent,
+  (req, res) => {
+    const event = res.locals.event;
+    event.owner = res.locals.owner;
+    event.users = res.locals.users;
+    event.bars = res.locals.bars;
+    res.json(event);
 });
 
 // add a new Event
