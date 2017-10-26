@@ -96,7 +96,6 @@ Bars.findOneBarData = (req, res, next) => {
 
 Bars.searchNearbyBars = (req, res, next) => {
     console.log('search');
-    const  searchTerm  = req.params.barQuery;
     const lat = res.locals.latLong.lat;
     const long = res.locals.latLong.lng;
     axios.get(
