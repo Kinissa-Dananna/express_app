@@ -64,30 +64,35 @@ Bars.findOneBarById = (req, res, next) => {
 }
 
 Bars.findOneBarData = (req, res, next) => {
-  const barId = res.locals.bar.barid;
-  let arrayResults = [];
+  const barId = req.params.barId;
   let name, address, price, rating, hereNow;
 
   axios.get(
       `https://api.foursquare.com/v2/venues/${barId}?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&v=${DATE}`
   ).then(response => {
-//    console.log(response.data.response);
+      //console.log(response.data.response);
       //const barData = response.data.response;
       //res.locals.barData = barData;
       name = response.data.response.venue.name;
       console.log('name', name);
-      address = response.data.response.venue.location.address;
+      street = response.data.response.venue.location.formattedAddress[0];
+      city = response.data.response.venue.location.formattedAddress[1];
+      country = response.data.response.venue.location.formattedAddress[2];
       price = response.data.response.venue.price.message;
       rating = response.data.response.venue.rating;
       hereNow = response.data.response.venue.hereNow.count;
       if(hereNow === 0) { hereNow = response.data.response.venue.hereNow.summary; }
-      arrayResults.push({
+      arrayResults = {
         name: name,
-        address: address,
+        address: {
+          street: street,
+          city: city,
+          country: country
+        },
         price: price,
         rating: rating,
-        hereNow: hereNow
-      })
+        //hereNow: hereNow
+      }
       res.locals.arrayResults = arrayResults;
       next();
   }).catch(err => console.log('error in Bars.findOneBarData', err));

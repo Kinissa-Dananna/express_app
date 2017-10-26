@@ -30,6 +30,15 @@ Auth.restrict,
   		});
   	});
 
+  router.get('/bars/:barId',
+  Auth.restrict,
+    Bars.findOneBarData,
+  	(req, res) => {
+  		res.json(
+  			res.locals.arrayResults
+  	   );
+  	});
+
 // user hit enter instead of choosing an autocompleted option, and entered a search term
 router.get('/:query/:barQuery',
 Auth.restrict,
