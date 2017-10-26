@@ -3,9 +3,11 @@ const router = express.Router();
 
 const Search = require('../models/search');
 const Bars = require('../models/bars');
+const Auth = require('../services/auth');
 
 // user chose a location from the autocomplete options
 router.get('/autocomplete/:placeId',
+Auth.restrict,
   Search.getLatLong,
   Bars.searchNearbyBars,
   (req, res) => {
@@ -17,6 +19,7 @@ router.get('/autocomplete/:placeId',
 
 // user hit enter instead of choosing an autocompleted option, but has not entered a search term
   router.get('/nearby/:query',
+  Auth.restrict,
     Search.getFirstResult,
     Search.getLatLongForInput,
     Bars.searchNearbyBars,
@@ -29,6 +32,7 @@ router.get('/autocomplete/:placeId',
 
 // user hit enter instead of choosing an autocompleted option, and entered a search term
 router.get('/:query/:barQuery',
+Auth.restrict,
   Search.getFirstResult,
   Search.getLatLongForInput,
   Bars.searchBars,
@@ -41,6 +45,7 @@ router.get('/:query/:barQuery',
 
 // populate autocomplete location results
 router.get('/:query',
+Auth.restrict,
   Search.populateResults,
 	(req, res) => {
 		res.json({
@@ -50,6 +55,7 @@ router.get('/:query',
 
 // user chooses a bar result from their search, and adds it to the event
 router.post('/add/:eventId',
+Auth.restrict,
   Bars.create,
   (req, res) => {
 		res.json(
