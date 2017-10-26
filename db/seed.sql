@@ -13,6 +13,7 @@ CREATE TABLE users (
 
 CREATE TABLE events (
   id SERIAL PRIMARY KEY,
+  ownerId INTEGER,
   name VARCHAR(255),
   description VARCHAR(255),
   time TIMESTAMP NOT NULL
