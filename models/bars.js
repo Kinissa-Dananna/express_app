@@ -32,20 +32,38 @@ Bars.findAllBarData = (req, res, next) => {
     .then(response => {
       res.locals.arrayResults = [];
       response.forEach((response) => {
-        let arrayResults = [];
-        name = response.data.response.venue.name;
-        address = response.data.response.venue.location.address;
-        price = response.data.response.venue.price.message;
-        rating = response.data.response.venue.rating;
-        hereNow = response.data.response.venue.hereNow.count;
-        if(hereNow === 0) { hereNow = response.data.response.venue.hereNow.summary; }
-        arrayResults.push({
+        const street = response.data.response.venue.location.formattedAddress[0],
+        city = response.data.response.venue.location.formattedAddress[1],
+        country = response.data.response.venue.location.formattedAddress[2],
+        lat = response.data.response.venue.location.lat,
+        long = response.data.response.venue.location.lng,
+        price = response.data.response.venue.price ? response.data.response.venue.price.message : 'N/A',
+        rating = response.data.response.venue.rating,
+        description = response.data.response.venue.description ? response.data.response.venue.description : 'No description available.',
+        daysOpen = response.data.response.venue.hours.timeframes[0].days,
+        hoursOpen = response.data.response.venue.hours.timeframes[0].open[0].renderedTime,
+        hoursUntilClosed = response.data.response.venue.hours.status,
+        isOpen = response.data.response.venue.hours.isOpen,
+        url = response.data.response.venue.canonicalUrl;
+
+        const arrayResults = {
           name: name,
-          address: address,
+          address: {
+            street: street,
+            city: city,
+            country: country
+          },
+          lat: lat,
+          long: long,
           price: price,
           rating: rating,
-          hereNow: hereNow
-        })
+          description: description,
+          daysOpen: daysOpen,
+          hoursOpen: hoursOpen,
+          hoursUntilClosed: hoursUntilClosed,
+          isOpen: isOpen,
+          url: url
+        }
         res.locals.arrayResults.push(arrayResults);
       })
       next();
@@ -71,11 +89,7 @@ Bars.findOneBarData = (req, res, next) => {
   axios.get(
       `https://api.foursquare.com/v2/venues/${barId}?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&v=${DATE}`
   ).then(response => {
-      //console.log(response.data.response);
-      //const barData = response.data.response;
-      //res.locals.barData = barData;
-      name = response.data.response.venue.name;
-      console.log('name', name);
+    
       const street = response.data.response.venue.location.formattedAddress[0],
       city = response.data.response.venue.location.formattedAddress[1],
       country = response.data.response.venue.location.formattedAddress[2],
@@ -87,8 +101,10 @@ Bars.findOneBarData = (req, res, next) => {
       daysOpen = response.data.response.venue.hours.timeframes[0].days,
       hoursOpen = response.data.response.venue.hours.timeframes[0].open[0].renderedTime,
       hoursUntilClosed = response.data.response.venue.hours.status,
+      isOpen = response.data.response.venue.hours.isOpen,
       url = response.data.response.venue.canonicalUrl;
-      arrayResults = {
+
+      const arrayResults = {
         name: name,
         address: {
           street: street,
@@ -103,6 +119,7 @@ Bars.findOneBarData = (req, res, next) => {
         daysOpen: daysOpen,
         hoursOpen: hoursOpen,
         hoursUntilClosed: hoursUntilClosed,
+        isOpen: isOpen,
         url: url
       }
       res.locals.arrayResults = arrayResults;
