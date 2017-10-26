@@ -46,7 +46,9 @@ router.post('/', Auth.restrict, Events.create, (req, res) => {
 });
 
 // edit an existing Event
-router.put('/:id', Auth.restrict, Events.update, (req, res) => {
+router.put('/:id',
+Auth.restrict,
+Events.update, (req, res) => {
   const event = res.locals.event;
 
   res.json(event);
