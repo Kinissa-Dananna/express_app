@@ -32,7 +32,8 @@ Bars.findAllBarData = (req, res, next) => {
     .then(response => {
       res.locals.arrayResults = [];
       response.forEach((response) => {
-        const street = response.data.response.venue.location.formattedAddress[0],
+        const name = response.data.response.venue.name,
+        street = response.data.response.venue.location.formattedAddress[0],
         city = response.data.response.venue.location.formattedAddress[1],
         country = response.data.response.venue.location.formattedAddress[2],
         lat = response.data.response.venue.location.lat,
@@ -83,14 +84,15 @@ Bars.findOneBarById = (req, res, next) => {
 
 // get foursquare info dump about a bar
 Bars.findOneBarData = (req, res, next) => {
-  const barId = req.params.barId;
+  const barId = res.locals.bar.barid;
   // let name, address, price, rating, hereNow;
 
   axios.get(
       `https://api.foursquare.com/v2/venues/${barId}?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&v=${DATE}`
   ).then(response => {
-    
-      const street = response.data.response.venue.location.formattedAddress[0],
+
+      const name = response.data.response.venue.name,
+      street = response.data.response.venue.location.formattedAddress[0],
       city = response.data.response.venue.location.formattedAddress[1],
       country = response.data.response.venue.location.formattedAddress[2],
       lat = response.data.response.venue.location.lat,

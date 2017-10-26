@@ -45,10 +45,51 @@ Events.findAllForUser = (req, res, next) => {
     });
 };
 
+Events.findUsersForEventBatch = (req, res, next) =>{
+  const {events} = res.locals;
+  db.task(t => {
+    return t.batch(events.map(event => {
+      return t.manyOrNone(`SELECT users.id, users.name, users.email FROM users
+        JOIN events_users
+        ON events_users.userId = users.id
+        JOIN events
+        ON events.id = events_users.eventId
+        WHERE events.id = $1`, [event.id])
+    }))
+  }).then(users => {
+    res.locals.users = users;
+    next();
+  })
+}
+
+Events.findBarsForEventBatch = (req, res, next) =>{
+  const {events} = res.locals;
+  db.task(t => {
+    return t.batch(events.map(event => {
+      return t.manyOrNone(`SELECT * FROM bars WHERE eventId = $1`, [event.id])
+    }))
+  }).then(bars => {
+    res.locals.bars = bars;
+    next();
+  })
+}
+
+Events.findOwnersForEventBatch = (req, res, next) =>{
+  const {events} = res.locals;
+  db.task(t => {
+    return t.batch(events.map(event => {
+      return t.manyOrNone(`SELECT id, name, email FROM users WHERE id = $1`, [event.ownerid])
+    }))
+  }).then(owners => {
+    res.locals.owners = owners;
+    next();
+  })
+}
+
 // find all users linked to an event by the join table
 Events.findUsersForEvent = (req, res, next) => {
   const eventId = req.params.id
-  db.manyOrNone(`SELECT users.name, users.email FROM users
+  db.manyOrNone(`SELECT users.id, users.name, users.email FROM users
     JOIN events_users
     ON events_users.userId = users.id
     JOIN events
