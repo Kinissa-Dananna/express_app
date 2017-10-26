@@ -3,16 +3,28 @@ const Events = require('../models/Events');
 const Auth = require('../services/auth');
 
 // get all Events for a user
-router.get('/', Auth.restrict, Events.findAllForUser, (req, res) => {
+router.get('/',
+Auth.restrict,
+Events.findAllForUser, (req, res) => {
   const events = res.locals.events;
 
   res.json(events);
 });
 
 // get all events a user owns
-router.get('/owned', Auth.restrict, Events.findAllForOwner, (req, res) => {
+router.get('/owned',
+Auth.restrict,
+Events.findAllForOwner,
+Events.findOwnersForEventBatch,
+Events.findUsersForEventBatch,
+Events.findBarsForEventBatch,
+(req, res) => {
   const events = res.locals.events;
-
+  events.map((event, i) => {
+    event.owner = res.locals.owners[i][0];
+    event.attendees = res.locals.users[i];
+    event.bars = res.locals.bars[i];
+  })
   res.json(events);
 });
 

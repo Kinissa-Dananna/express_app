@@ -27,6 +27,37 @@ Events.findOwnerForEvent = (req, res, next) => {
     });
 };
 
+// find all users linked to an event by the join table
+Events.findUsersForEvent = (req, res, next) => {
+  const eventId = req.params.id
+  db.manyOrNone(`SELECT users.id, users.name, users.email FROM users
+    JOIN events_users
+    ON events_users.userId = users.id
+    JOIN events
+    ON events.id = events_users.eventId
+    WHERE events.id = $1`, [eventId])
+    .then((users) => {
+      res.locals.users = users;
+      next();
+    })
+    .catch(err => {
+      console.log('Error getting data from database');
+    });
+};
+
+// find all bars for a single event
+Events.findBarsForEvent = (req, res, next) => {
+  const eventId = res.locals.event.id;
+  db.manyOrNone('SELECT * FROM bars WHERE eventId = $1',  [eventId])
+    .then((bars) => {
+      res.locals.bars = bars;
+      next();
+    })
+    .catch(err => {
+      console.log('Error getting data from database');
+    });
+};
+
 // get all events linked to this user by the join table
 Events.findAllForUser = (req, res, next) => {
   const userId = req.user.id;
@@ -45,35 +76,49 @@ Events.findAllForUser = (req, res, next) => {
     });
 };
 
-// find all users linked to an event by the join table
-Events.findUsersForEvent = (req, res, next) => {
-  const eventId = req.params.id
-  db.manyOrNone(`SELECT users.name, users.email FROM users
-    JOIN events_users
-    ON events_users.userId = users.id
-    JOIN events
-    ON events.id = events_users.eventId
-    WHERE events.id = $1`, [eventId])
-    .then((users) => {
-      res.locals.users = users;
-      next();
-    })
-    .catch(err => {
-      console.log('Error getting data from database');
-    });
-};
+// get all users for a batch of events
+Events.findUsersForEventBatch = (req, res, next) =>{
+  const {events} = res.locals;
+  db.task(t => {
+    return t.batch(events.map(event => {
+      return t.manyOrNone(`SELECT users.id, users.name, users.email FROM users
+        JOIN events_users
+        ON events_users.userId = users.id
+        JOIN events
+        ON events.id = events_users.eventId
+        WHERE events.id = $1`, [event.id])
+    }))
+  }).then(users => {
+    res.locals.users = users;
+    next();
+  })
+}
 
-Events.findBarsForEvent = (req, res, next) => {
-  const eventId = res.locals.event.id;
-  db.manyOrNone('SELECT * FROM bars WHERE eventId = $1',  [eventId])
-    .then((bars) => {
-      res.locals.bars = bars;
-      next();
-    })
-    .catch(err => {
-      console.log('Error getting data from database');
-    });
-};
+// get all bars for a batch of events
+Events.findBarsForEventBatch = (req, res, next) =>{
+  const {events} = res.locals;
+  db.task(t => {
+    return t.batch(events.map(event => {
+      return t.manyOrNone(`SELECT * FROM bars WHERE eventId = $1`, [event.id])
+    }))
+  }).then(bars => {
+    res.locals.bars = bars;
+    next();
+  })
+}
+
+// get all owners for a batch of events
+Events.findOwnersForEventBatch = (req, res, next) =>{
+  const {events} = res.locals;
+  db.task(t => {
+    return t.batch(events.map(event => {
+      return t.manyOrNone(`SELECT id, name, email FROM users WHERE id = $1`, [event.ownerid])
+    }))
+  }).then(owners => {
+    res.locals.owners = owners;
+    next();
+  })
+}
 
 // get one event by id
 Events.findById = (req, res, next) => {
