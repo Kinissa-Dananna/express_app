@@ -2,6 +2,10 @@ const db = require('../db/config');
 const Search = {};
 const axios = require('axios');
 
+const CLIENT_ID = process.env.CLIENT_ID;
+const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const DATE = '20171025';
+
 // autocomplete search results - provides description for display and place id for getting lat and long data
 Search.populateResults = (req, res, next) => {
   const query = req.params.query;
@@ -54,6 +58,53 @@ Search.getLatLong = (req, res, next) => {
     //console.log(res.locals.latLong);
     next();
   });
+}
+
+Search.findOneBarData = (req, res, next) => {
+  const barId = req.params.barId;
+  // let name, address, price, rating, hereNow;
+
+  axios.get(
+      `https://api.foursquare.com/v2/venues/${barId}?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&v=${DATE}`
+  ).then(response => {
+
+      const name = response.data.response.venue.name,
+      street = response.data.response.venue.location.formattedAddress[0],
+      city = response.data.response.venue.location.formattedAddress[1],
+      country = response.data.response.venue.location.formattedAddress[2],
+      lat = response.data.response.venue.location.lat,
+      long = response.data.response.venue.location.lng,
+      price = response.data.response.venue.price ? response.data.response.venue.price.message : 'N/A',
+      rating = response.data.response.venue.rating,
+      description = response.data.response.venue.description ? response.data.response.venue.description : 'No description available.',
+      daysOpen = response.data.response.venue.hours.timeframes[0].days,
+      hoursOpen = response.data.response.venue.hours.timeframes[0].open[0].renderedTime,
+      hoursUntilClosed = response.data.response.venue.hours.status,
+      isOpen = response.data.response.venue.hours.isOpen,
+      url = response.data.response.venue.canonicalUrl;
+
+      const arrayResults = {
+        name: name,
+        address: {
+          street: street,
+          city: city,
+          country: country
+        },
+        lat: lat,
+        long: long,
+        price: price,
+        rating: rating,
+        description: description,
+        daysOpen: daysOpen,
+        hoursOpen: hoursOpen,
+        hoursUntilClosed: hoursUntilClosed,
+        isOpen: isOpen,
+        url: url
+      }
+      res.locals.arrayResults = arrayResults;
+      next();
+  }).catch(err => console.log('error in Bars.findOneBarData', err));
+
 }
 
 

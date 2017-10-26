@@ -31,8 +31,8 @@ Auth.restrict,
   	});
 
   router.get('/bars/:barId',
-  Auth.restrict,
-    Bars.findOneBarData,
+  //Auth.restrict,
+    Search.findOneBarData,
   	(req, res) => {
   		res.json(
   			res.locals.arrayResults
