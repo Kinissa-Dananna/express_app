@@ -5,6 +5,7 @@ const db = require('../db/config');
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const DATE = '20171025';
+const GOOGLE_API = process.env.GOOGLE_API;
 // create the model object
 const Bars = {}
 
@@ -100,11 +101,12 @@ Bars.findOneBarData = (req, res, next) => {
       price = response.data.response.venue.price ? response.data.response.venue.price.message : 'N/A',
       rating = response.data.response.venue.rating,
       description = response.data.response.venue.description ? response.data.response.venue.description : 'No description available.',
-      daysOpen = response.data.response.venue.hours ? response.data.response.venue.hours.timeframes[0].days : 'Not Found',
-      hoursOpen = response.data.response.venue.hours ? response.data.response.venue.hours.timeframes[0].open[0].renderedTime : 'Not Found',
-      hoursUntilClosed = response.data.response.venue.hours ? response.data.response.venue.hours.status : 'Not Found',
-      isOpen = response.data.response.venue.hours ? response.data.response.venue.hours.isOpen : 'Not Found',
+      daysOpen = response.data.response.venue.hours ? response.data.response.venue.hours.timeframes[0].days : 'N/A',
+      hoursOpen = response.data.response.venue.hours ? response.data.response.venue.hours.timeframes[0].open[0].renderedTime : '',
+      hoursUntilClosed = response.data.response.venue.hours ? response.data.response.venue.hours.status : '',
+      isOpen = response.data.response.venue.hours ? response.data.response.venue.hours.isOpen : '',
       url = response.data.response.venue.canonicalUrl;
+      map =  `https://www.google.com/maps/embed/v1/place?key=${GOOGLE_API}&q=${name}`;
 
       const arrayResults = {
         name: name,
@@ -122,20 +124,33 @@ Bars.findOneBarData = (req, res, next) => {
         hoursOpen: hoursOpen,
         hoursUntilClosed: hoursUntilClosed,
         isOpen: isOpen,
-        url: url
+        url: url,
+        map: map
       }
       res.locals.arrayResults = arrayResults;
       next();
   }).catch(err => console.log('error in Bars.findOneBarData', err));
 
 }
+//
+// Bars.getBarMap = (req, res, next) => {
+//   const lat = res.locals.arrayResults.lat,
+//         long = res.locals.arrayResults.long,
+//         name = res.locals.arrayResults.name;
+//
+//
+//     const map =  `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${long}&markers=color:red%7Clabel:${name}%7C${lat},${long}&zoom=14&size=400x400&key=${GOOGLE_API}`;
+//     res.locals.map = map;
+//     next();
+//
+// }
 
 Bars.searchNearbyBars = (req, res, next) => {
     console.log('search');
     const lat = res.locals.latLong.lat;
     const long = res.locals.latLong.lng;
     axios.get(
-        `https://api.foursquare.com/v2/venues/search?ll=${lat},${long}&categoryId=4d4b7105d754a06376d81259&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&v=${DATE}&limit=5&radius=1000`
+        `https://api.foursquare.com/v2/venues/search?ll=${lat},${long}&categoryId=4d4b7105d754a06376d81259&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&v=${DATE}&limit=5&radius=1500`
     ).then(response => {
          const fiveResults = response.data.response.venues;
          res.locals.fiveResults = fiveResults.map( result => {
