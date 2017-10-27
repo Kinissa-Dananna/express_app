@@ -150,7 +150,7 @@ Bars.searchNearbyBars = (req, res, next) => {
     const lat = res.locals.latLong.lat;
     const long = res.locals.latLong.lng;
     axios.get(
-        `https://api.foursquare.com/v2/venues/search?ll=${lat},${long}&categoryId=4d4b7105d754a06376d81259&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&v=${DATE}&limit=5&radius=1500`
+        `https://api.foursquare.com/v2/venues/search?ll=${lat},${long}&categoryId=4d4b7105d754a06376d81259&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&v=${DATE}&limit=10&radius=1500`
     ).then(response => {
          const fiveResults = response.data.response.venues;
          res.locals.fiveResults = fiveResults.map( result => {
@@ -167,7 +167,7 @@ Bars.searchBars = (req, res, next) => {
     const lat = res.locals.latLong.lat;
     const long = res.locals.latLong.lng;
     axios.get(
-        `https://api.foursquare.com/v2/venues/search?ll=${lat},${long}&query=${searchTerm}&categoryId=4d4b7105d754a06376d81259&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&v=${DATE}&limit=5`
+        `https://api.foursquare.com/v2/venues/search?ll=${lat},${long}&query=${searchTerm}&categoryId=4d4b7105d754a06376d81259&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&v=${DATE}&limit=10`
     ).then(response => {
          const fiveResults = response.data.response.venues;
          res.locals.fiveResults = fiveResults.map( result => {
