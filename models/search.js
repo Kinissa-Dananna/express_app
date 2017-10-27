@@ -76,7 +76,7 @@ Search.findOneBarData = (req, res, next) => {
       lat = response.data.response.venue.location.lat,
       long = response.data.response.venue.location.lng,
       price = response.data.response.venue.price ? response.data.response.venue.price.message : 'N/A',
-      rating = response.data.response.venue.rating,
+      rating = response.data.response.venue.rating ? response.data.response.venue.rating : 'N/A',
       description = response.data.response.venue.description ? response.data.response.venue.description : 'No description available.',
       daysOpen = response.data.response.venue.hours ? response.data.response.venue.hours.timeframes[0].days : 'N/A',
       hoursOpen = response.data.response.venue.hours ? response.data.response.venue.hours.timeframes[0].open[0].renderedTime : '',
