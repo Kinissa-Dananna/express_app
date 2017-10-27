@@ -32,7 +32,7 @@ Auth.restrict,
 
   router.get('/bars/:barId',
   Auth.restrict,
-    Bars.findOneBarData,
+    Search.findOneBarData,
   	(req, res) => {
   		res.json(
   			res.locals.arrayResults

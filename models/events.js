@@ -3,7 +3,8 @@ const Events = {};
 
 // get all events owned by this user
 Events.findAllForOwner = (req, res, next) => {
-  const ownerId = 1//req.user.id;
+  const ownerId = req.user.id;
+  console.log(ownerId);
   db.manyOrNone('SELECT * FROM events WHERE ownerId = $1', [ownerId])
     .then((events) => {
       res.locals.events = events;
@@ -20,6 +21,37 @@ Events.findOwnerForEvent = (req, res, next) => {
   db.manyOrNone('SELECT name, email FROM users WHERE id = $1', [ownerId])
     .then((owner) => {
       res.locals.owner = owner;
+      next();
+    })
+    .catch(err => {
+      console.log('Error getting data from database');
+    });
+};
+
+// find all users linked to an event by the join table
+Events.findUsersForEvent = (req, res, next) => {
+  const eventId = req.params.id
+  db.manyOrNone(`SELECT users.id, users.name, users.email FROM users
+    JOIN events_users
+    ON events_users.userId = users.id
+    JOIN events
+    ON events.id = events_users.eventId
+    WHERE events.id = $1`, [eventId])
+    .then((users) => {
+      res.locals.users = users;
+      next();
+    })
+    .catch(err => {
+      console.log('Error getting data from database');
+    });
+};
+
+// find all bars for a single event
+Events.findBarsForEvent = (req, res, next) => {
+  const eventId = res.locals.event.id;
+  db.manyOrNone('SELECT * FROM bars WHERE eventId = $1',  [eventId])
+    .then((bars) => {
+      res.locals.bars = bars;
       next();
     })
     .catch(err => {
@@ -45,35 +77,49 @@ Events.findAllForUser = (req, res, next) => {
     });
 };
 
-// find all users linked to an event by the join table
-Events.findUsersForEvent = (req, res, next) => {
-  const eventId = req.params.id
-  db.manyOrNone(`SELECT users.name, users.email FROM users
-    JOIN events_users
-    ON events_users.userId = users.id
-    JOIN events
-    ON events.id = events_users.eventId
-    WHERE events.id = $1`, [eventId])
-    .then((users) => {
-      res.locals.users = users;
-      next();
-    })
-    .catch(err => {
-      console.log('Error getting data from database');
-    });
-};
+// get all users for a batch of events
+Events.findUsersForEventBatch = (req, res, next) =>{
+  const {events} = res.locals;
+  db.task(t => {
+    return t.batch(events.map(event => {
+      return t.manyOrNone(`SELECT users.id, users.name, users.email FROM users
+        JOIN events_users
+        ON events_users.userId = users.id
+        JOIN events
+        ON events.id = events_users.eventId
+        WHERE events.id = $1`, [event.id])
+    }))
+  }).then(users => {
+    res.locals.users = users;
+    next();
+  })
+}
 
-Events.findBarsForEvent = (req, res, next) => {
-  const eventId = res.locals.event.id;
-  db.manyOrNone('SELECT * FROM bars WHERE eventId = $1',  [eventId])
-    .then((bars) => {
-      res.locals.bars = bars;
-      next();
-    })
-    .catch(err => {
-      console.log('Error getting data from database');
-    });
-};
+// get all bars for a batch of events
+Events.findBarsForEventBatch = (req, res, next) =>{
+  const {events} = res.locals;
+  db.task(t => {
+    return t.batch(events.map(event => {
+      return t.manyOrNone(`SELECT * FROM bars WHERE eventId = $1`, [event.id])
+    }))
+  }).then(bars => {
+    res.locals.bars = bars;
+    next();
+  })
+}
+
+// get all owners for a batch of events
+Events.findOwnersForEventBatch = (req, res, next) =>{
+  const {events} = res.locals;
+  db.task(t => {
+    return t.batch(events.map(event => {
+      return t.manyOrNone(`SELECT id, name, email FROM users WHERE id = $1`, [event.ownerid])
+    }))
+  }).then(owners => {
+    res.locals.owners = owners;
+    next();
+  })
+}
 
 // get one event by id
 Events.findById = (req, res, next) => {
@@ -109,13 +155,13 @@ Events.create = (req, res, next) => {
 
   // update a event's info
   Events.update = (req, res, next) => {
-    const { id } = req.params;
+    const  id  = req.params.id;
     const { name, description, time } = req.body;
 
     db.one(`UPDATE events
       SET name = $1, description = $2, time = $3 WHERE id = $4
       RETURNING id`,
-      [name, description, time])
+      [name, description, time, id])
       .then((event) => {
         res.locals.event = event;
         next();
