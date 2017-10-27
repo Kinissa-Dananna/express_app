@@ -181,6 +181,9 @@ Events.create = (req, res, next) => {
     const { id } = req.params;
 
     db.none('DELETE FROM events WHERE id = $1', [id])
+      .then(
+        next()
+      )
       .catch(err => {
         console.log('Error deleting data from database');
       });
