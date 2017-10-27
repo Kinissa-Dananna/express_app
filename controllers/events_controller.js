@@ -51,7 +51,7 @@ router.get('/:id',
   });
 
 // add a new Event
-router.post('/', /* Auth.restrict, */ Events.create, (req, res) => {
+router.post('/', Auth.restrict, Events.create, (req, res) => {
   const event = res.locals.event;
 
   res.json(event);
@@ -67,7 +67,7 @@ router.put('/:id',
   });
 
 router.delete('/:eventId/self',
-  /* Auth.restrict, */
+  Auth.restrict,
   Events.removeUser,
   (req, res) => {
     console.log('deleting user');
@@ -78,7 +78,7 @@ router.delete('/:eventId/self',
 
 // delete an Event
 router.delete('/:id',
-  /* Auth.restrict, */
+  Auth.restrict,
   Events.delete,
   (req, res) => {
 
