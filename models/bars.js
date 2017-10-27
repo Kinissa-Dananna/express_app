@@ -5,6 +5,7 @@ const db = require('../db/config');
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const DATE = '20171025';
+const GOOGLE_API = process.env.GOOGLE_API;
 // create the model object
 const Bars = {}
 
@@ -104,7 +105,8 @@ Bars.findOneBarData = (req, res, next) => {
       hoursOpen = response.data.response.venue.hours.timeframes[0].open[0].renderedTime,
       hoursUntilClosed = response.data.response.venue.hours.status,
       isOpen = response.data.response.venue.hours.isOpen,
-      url = response.data.response.venue.canonicalUrl;
+      url = response.data.response.venue.canonicalUrl,
+      map =  `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${long}&markers=color:red%7Clabel:${name}%7C${lat},${long}&zoom=14&size=400x400&key=${GOOGLE_API}`;
 
       const arrayResults = {
         name: name,
@@ -122,13 +124,26 @@ Bars.findOneBarData = (req, res, next) => {
         hoursOpen: hoursOpen,
         hoursUntilClosed: hoursUntilClosed,
         isOpen: isOpen,
-        url: url
+        url: url,
+        map: map
       }
       res.locals.arrayResults = arrayResults;
       next();
   }).catch(err => console.log('error in Bars.findOneBarData', err));
 
 }
+//
+// Bars.getBarMap = (req, res, next) => {
+//   const lat = res.locals.arrayResults.lat,
+//         long = res.locals.arrayResults.long,
+//         name = res.locals.arrayResults.name;
+//
+//
+//     const map =  `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${long}&markers=color:red%7Clabel:${name}%7C${lat},${long}&zoom=14&size=400x400&key=${GOOGLE_API}`;
+//     res.locals.map = map;
+//     next();
+//
+// }
 
 Bars.searchNearbyBars = (req, res, next) => {
     console.log('search');
