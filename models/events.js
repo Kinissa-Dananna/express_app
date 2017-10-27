@@ -31,7 +31,7 @@ Events.findOwnerForEvent = (req, res, next) => {
 // find all users linked to an event by the join table
 Events.findUsersForEvent = (req, res, next) => {
   const eventId = req.params.id
-  db.manyOrNone(`SELECT users.id, users.name, users.email FROM users
+  db.manyOrNone(`SELECT users.id, users.name, users.image, users.email FROM users
     JOIN events_users
     ON events_users.userId = users.id
     JOIN events
