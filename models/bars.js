@@ -106,7 +106,7 @@ Bars.findOneBarData = (req, res, next) => {
       hoursUntilClosed = response.data.response.venue.hours.status,
       isOpen = response.data.response.venue.hours.isOpen,
       url = response.data.response.venue.canonicalUrl,
-      map =  `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${long}&markers=color:red%7Clabel:${name}%7C${lat},${long}&zoom=14&size=400x400&key=${GOOGLE_API}`;
+      map =  `https://www.google.com/maps/embed/v1/place?key=${GOOGLE_API}&q=${name}`;
 
       const arrayResults = {
         name: name,
