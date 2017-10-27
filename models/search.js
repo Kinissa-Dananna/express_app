@@ -55,7 +55,7 @@ Search.getLatLong = (req, res, next) => {
   axios.get(`https://maps.googleapis.com/maps/api/geocode/json?place_id=${placeId}&key=${process.env.GEO_KEY}`)
   .then(response => {
     res.locals.latLong = response.data.results[0].geometry.location;
-    //console.log(res.locals.latLong);
+    console.log(res.locals.latLong);
     next();
   });
 }
@@ -77,10 +77,10 @@ Search.findOneBarData = (req, res, next) => {
       price = response.data.response.venue.price ? response.data.response.venue.price.message : 'N/A',
       rating = response.data.response.venue.rating,
       description = response.data.response.venue.description ? response.data.response.venue.description : 'No description available.',
-      daysOpen = response.data.response.venue.hours.timeframes[0].days,
-      hoursOpen = response.data.response.venue.hours.timeframes[0].open[0].renderedTime,
-      hoursUntilClosed = response.data.response.venue.hours.status,
-      isOpen = response.data.response.venue.hours.isOpen,
+      daysOpen = response.data.response.venue.hours ? response.data.response.venue.hours.timeframes[0].days : 'Not Found',
+      hoursOpen = response.data.response.venue.hours ? response.data.response.venue.hours.timeframes[0].open[0].renderedTime : 'Not Found',
+      hoursUntilClosed = response.data.response.venue.hours ? response.data.response.venue.hours.status : 'Not Found',
+      isOpen = response.data.response.venue.hours ? response.data.response.venue.hours.isOpen : 'Not Found',
       url = response.data.response.venue.canonicalUrl;
 
       const arrayResults = {
