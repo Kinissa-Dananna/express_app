@@ -145,7 +145,7 @@ Events.create = (req, res, next) => {
       next();
     })
     .catch(err => {
-      console.log('Error fetching data from database');
+      console.log('Error fetching data from databaseCREATE');
       res.status(500).json({
         message: 'could not create event'
       });
