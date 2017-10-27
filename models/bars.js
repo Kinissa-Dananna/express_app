@@ -42,10 +42,10 @@ Bars.findAllBarData = (req, res, next) => {
         price = response.data.response.venue.price ? response.data.response.venue.price.message : 'N/A',
         rating = response.data.response.venue.rating,
         description = response.data.response.venue.description ? response.data.response.venue.description : 'No description available.',
-        daysOpen = response.data.response.venue.hours.timeframes[0].days,
-        hoursOpen = response.data.response.venue.hours.timeframes[0].open[0].renderedTime,
-        hoursUntilClosed = response.data.response.venue.hours.status,
-        isOpen = response.data.response.venue.hours.isOpen,
+        daysOpen = response.data.response.venue.hours ? response.data.response.venue.hours.timeframes[0].days : 'Not Found',
+        hoursOpen = response.data.response.venue.hours ? response.data.response.venue.hours.timeframes[0].open[0].renderedTime : 'Not Found',
+        hoursUntilClosed = response.data.response.venue.hours ? response.data.response.venue.hours.status : 'Not Found',
+        isOpen = response.data.response.venue.hours ? response.data.response.venue.hours.isOpen : 'Not Found',
         url = response.data.response.venue.canonicalUrl;
 
         const arrayResults = {
@@ -91,7 +91,7 @@ Bars.findOneBarData = (req, res, next) => {
   axios.get(
       `https://api.foursquare.com/v2/venues/${barId}?client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&v=${DATE}`
   ).then(response => {
-
+      console.log(response.data);
       const name = response.data.response.venue.name,
       street = response.data.response.venue.location.formattedAddress[0],
       city = response.data.response.venue.location.formattedAddress[1],
@@ -101,11 +101,11 @@ Bars.findOneBarData = (req, res, next) => {
       price = response.data.response.venue.price ? response.data.response.venue.price.message : 'N/A',
       rating = response.data.response.venue.rating,
       description = response.data.response.venue.description ? response.data.response.venue.description : 'No description available.',
-      daysOpen = response.data.response.venue.hours.timeframes[0].days,
-      hoursOpen = response.data.response.venue.hours.timeframes[0].open[0].renderedTime,
-      hoursUntilClosed = response.data.response.venue.hours.status,
-      isOpen = response.data.response.venue.hours.isOpen,
-      url = response.data.response.venue.canonicalUrl,
+      daysOpen = response.data.response.venue.hours ? response.data.response.venue.hours.timeframes[0].days : 'N/A',
+      hoursOpen = response.data.response.venue.hours ? response.data.response.venue.hours.timeframes[0].open[0].renderedTime : '',
+      hoursUntilClosed = response.data.response.venue.hours ? response.data.response.venue.hours.status : '',
+      isOpen = response.data.response.venue.hours ? response.data.response.venue.hours.isOpen : '',
+      url = response.data.response.venue.canonicalUrl;
       map =  `https://www.google.com/maps/embed/v1/place?key=${GOOGLE_API}&q=${name}`;
 
       const arrayResults = {
@@ -150,12 +150,13 @@ Bars.searchNearbyBars = (req, res, next) => {
     const lat = res.locals.latLong.lat;
     const long = res.locals.latLong.lng;
     axios.get(
-        `https://api.foursquare.com/v2/venues/search?ll=${lat},${long}&categoryId=4d4b7105d754a06376d81259&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&v=${DATE}&limit=5`
+        `https://api.foursquare.com/v2/venues/search?ll=${lat},${long}&categoryId=4d4b7105d754a06376d81259&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&v=${DATE}&limit=5&radius=1500`
     ).then(response => {
          const fiveResults = response.data.response.venues;
          res.locals.fiveResults = fiveResults.map( result => {
            return {barId: result.id, name: result.name, lat: result.location.lat, long: result.location.lng}
          });
+         console.log(res.locals.fiveResults);
         next();
     }).catch(err => console.log('error in places.search ', err));
 }
