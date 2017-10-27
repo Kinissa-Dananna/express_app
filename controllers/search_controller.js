@@ -25,7 +25,7 @@ Auth.restrict,
     Bars.searchNearbyBars,
   	(req, res) => {
   		res.json({
-        searchLocation: res.locals.latLong,
+        searchLocation: res.locals.result,
   			results: res.locals.fiveResults
   		});
   	});
