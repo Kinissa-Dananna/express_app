@@ -51,7 +51,10 @@ router.get('/:id',
 });
 
 // add a new Event
-router.post('/', Auth.restrict, Events.create, (req, res) => {
+router.post('/',
+Auth.restrict,
+Events.create,
+(req, res) => {
   const event = res.locals.event;
 
   res.json(event);

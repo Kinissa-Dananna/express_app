@@ -136,16 +136,18 @@ Events.findById = (req, res, next) => {
 // make a new event
 Events.create = (req, res, next) => {
   const ownerId = req.user.id;
+  console.log(ownerId);
   const { name, description, time } = req.body;
   db.one(`INSERT INTO events (name, description, time, ownerId)
   VALUES ($1, $2, $3, $4) RETURNING id`,
   [name, description, time, ownerId])
     .then((event) => {
+      console.log(event);
       res.locals.event = event;
       next();
     })
     .catch(err => {
-      console.log('Error fetching data from database');
+      console.log('Error fetching data from database from Create Event');
       res.status(500).json({
         message: 'could not create event'
       });
