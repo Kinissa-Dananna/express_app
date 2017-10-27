@@ -5,6 +5,7 @@ const axios = require('axios');
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const DATE = '20171025';
+const GOOGLE_API = process.env.GOOGLE_API;
 
 // autocomplete search results - provides description for display and place id for getting lat and long data
 Search.populateResults = (req, res, next) => {
@@ -55,7 +56,7 @@ Search.getLatLong = (req, res, next) => {
   axios.get(`https://maps.googleapis.com/maps/api/geocode/json?place_id=${placeId}&key=${process.env.GEO_KEY}`)
   .then(response => {
     res.locals.latLong = response.data.results[0].geometry.location;
-    //console.log(res.locals.latLong);
+    console.log(res.locals.latLong);
     next();
   });
 }
@@ -77,11 +78,12 @@ Search.findOneBarData = (req, res, next) => {
       price = response.data.response.venue.price ? response.data.response.venue.price.message : 'N/A',
       rating = response.data.response.venue.rating,
       description = response.data.response.venue.description ? response.data.response.venue.description : 'No description available.',
-      daysOpen = response.data.response.venue.hours.timeframes[0].days,
-      hoursOpen = response.data.response.venue.hours.timeframes[0].open[0].renderedTime,
-      hoursUntilClosed = response.data.response.venue.hours.status,
-      isOpen = response.data.response.venue.hours.isOpen,
-      url = response.data.response.venue.canonicalUrl;
+      daysOpen = response.data.response.venue.hours ? response.data.response.venue.hours.timeframes[0].days : 'N/A',
+      hoursOpen = response.data.response.venue.hours ? response.data.response.venue.hours.timeframes[0].open[0].renderedTime : '',
+      hoursUntilClosed = response.data.response.venue.hours ? response.data.response.venue.hours.status : '',
+      isOpen = response.data.response.venue.hours ? response.data.response.venue.hours.isOpen : '',
+      url = response.data.response.venue.canonicalUrl,
+      map =  `https://www.google.com/maps/embed/v1/place?key=${GOOGLE_API}&q=${name}`;
 
       const arrayResults = {
         name: name,
@@ -99,7 +101,8 @@ Search.findOneBarData = (req, res, next) => {
         hoursOpen: hoursOpen,
         hoursUntilClosed: hoursUntilClosed,
         isOpen: isOpen,
-        url: url
+        url: url,
+        map: map
       }
       res.locals.arrayResults = arrayResults;
       next();

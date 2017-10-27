@@ -4,6 +4,7 @@ const Events = {};
 // get all events owned by this user
 Events.findAllForOwner = (req, res, next) => {
   const ownerId = req.user.id;
+  console.log(ownerId);
   db.manyOrNone('SELECT * FROM events WHERE ownerId = $1', [ownerId])
     .then((events) => {
       res.locals.events = events;
