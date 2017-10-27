@@ -28,6 +28,7 @@ app.use('/login', require('./controllers/sessions_controller'));
 app.use('/events', require('./controllers/events_controller'));
 app.use('/search', require('./controllers/search_controller'));
 app.use('/bars', require('./controllers/bars-controller'));
+app.use('/user-search', require('./controllers/user_search_controller'));
 
 // listen on port and run server
 app.listen(port, () => console.log('server listening on ' + port));
