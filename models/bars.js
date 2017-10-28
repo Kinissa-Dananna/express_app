@@ -107,7 +107,9 @@ Bars.findOneBarData = (req, res, next) => {
       price = response.data.response.venue.price
         ? response.data.response.venue.price.message
         : 'N/A',
-      rating = response.data.response.venue.rating ? response.data.response.venue.rating : 'N/A',
+      rating = response.data.response.venue.rating
+        ? response.data.response.venue.rating
+        : 'N/A',
       description = response.data.response.venue.description
         ? response.data.response.venue.description
         : 'No description available.',
@@ -211,10 +213,11 @@ Bars.create = (req, res, next) => {
         res.locals.arrayResults = data;
         next();
       }).catch(err => console.log('error posting bar ', err));
-    } else
+    } else {
+      res.status(500).json({message: "you don't own this event!"});
       next();
     }
-  )
+  })
 
 }
 
@@ -227,10 +230,11 @@ Bars.destroy = (req, res, next) => {
       db.none('DELETE FROM bars WHERE eventId = $1 AND id = $2', [eventId, id]).then(() => {
         next();
       });
-    } else
+    } else {
+      res.status(500).json({message: "you don't own this event!"});
       next();
     }
-  )
+  })
 };
 
 // export the model
