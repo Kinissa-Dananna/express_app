@@ -68,19 +68,29 @@ router.put('/:id',
 
     res.json(event);
   });
-
+// remove yourself from event
 router.delete('/:eventId/self',
   Auth.restrict,
-  Events.removeUser,
+  Events.removeSelf,
   (req, res) => {
     console.log('deleting user');
     const event = res.locals.event;
 
-    res.json({ message: "successfully removed user from event" });
+    res.json({ message: "successfully removed self from event" });
   });
+// remove a user from an event
+  router.delete('/:eventId/user/:userId',
+    Auth.restrict,
+    Events.removeUser,
+    (req, res) => {
+      console.log('deleting user');
+      const event = res.locals.event;
+
+      res.json({ message: "successfully removed user from event" });
+    });
 
 // delete an Event
-router.delete('/:id',
+router.delete('/:id/',
   Auth.restrict,
   Events.delete,
   (req, res) => {

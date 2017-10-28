@@ -208,7 +208,7 @@ Events.addUserToEvent = (req, res, next) => {
     });
   };
 
-Events.removeUser = (req, res, next) => {
+Events.removeSelf = (req, res, next) => {
   const eventId = req.params.eventId
   const userId = req.user.id;
   db.none(`DELETE FROM events_users
@@ -224,5 +224,22 @@ Events.removeUser = (req, res, next) => {
       });
     });
   };
+
+  Events.removeUser = (req, res, next) => {
+    const eventId = req.params.eventId
+    const userId = req.params.userId;
+    db.none(`DELETE FROM events_users
+    WHERE eventId = $1 AND userId = $2`,
+    [eventId, userId])
+      .then(() => {
+        next();
+      })
+      .catch(err => {
+        console.log('Error posting data to database');
+        res.status(500).json({
+          message: 'could not add user to event'
+        });
+      });
+    };
 
 module.exports = Events;
