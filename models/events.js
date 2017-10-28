@@ -163,7 +163,8 @@ Events.update = (req, res, next) => {
 // delete a event
 Events.delete = (req, res, next) => {
   const {id} = req.params;
-  db.one('SELECT * FROM events WHERE id = $1', [eventId]).then((event) => {
+  const userId = req.user.id;
+  db.one('SELECT * FROM events WHERE id = $1', [id]).then((event) => {
     if (event.ownerid === Number(userId)) {
       db.none('DELETE FROM events WHERE id = $1', [id]).then(res => {
         next();
@@ -171,7 +172,8 @@ Events.delete = (req, res, next) => {
         console.log('Error deleting data from database');
       });
     } else {
-      res.status(500).json({message: "you don't own this event!"});
+      console.log('nope!');
+      res.status(500).json({error: "you don't own this event!"});
       next();
     }
   });
