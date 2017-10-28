@@ -90,11 +90,10 @@ router.delete('/:eventId/self',
     });
 
 // delete an Event
-router.delete('/:id/',
+router.delete('/:id',
   Auth.restrict,
   Events.delete,
   (req, res) => {
-
     res.json({ message: 'Event successfully deleted!' });
   });
 
