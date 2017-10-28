@@ -31,7 +31,7 @@ Events.findOwnerForEvent = (req, res, next) => {
 // find all users linked to an event by the join table
 Events.findUsersForEvent = (req, res, next) => {
   const eventId = req.params.id
-  db.manyOrNone(`SELECT users.id, users.name, users.email FROM users
+  db.manyOrNone(`SELECT users.id, users.name, users.image, users.email FROM users
     JOIN events_users
     ON events_users.userId = users.id
     JOIN events
@@ -137,16 +137,18 @@ Events.findById = (req, res, next) => {
 // make a new event
 Events.create = (req, res, next) => {
   const ownerId = req.user.id;
+  console.log(ownerId);
   const { name, description, time } = req.body;
   db.one(`INSERT INTO events (name, description, time, ownerId)
   VALUES ($1, $2, $3, $4) RETURNING id`,
   [name, description, time, ownerId])
     .then((event) => {
+      console.log(event);
       res.locals.event = event;
       next();
     })
     .catch(err => {
-      console.log('Error fetching data from databaseCREATE');
+      console.log('Error fetching data from database from Create Event');
       res.status(500).json({
         message: 'could not create event'
       });
@@ -179,7 +181,9 @@ Events.create = (req, res, next) => {
     const { id } = req.params;
 
     db.none('DELETE FROM events WHERE id = $1', [id])
-    .then(next())
+    .then(res => {
+      next();
+    })
       .catch(err => {
         console.log('Error deleting data from database DELETE');
       });

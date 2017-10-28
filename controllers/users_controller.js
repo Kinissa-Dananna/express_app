@@ -10,6 +10,7 @@ router.get('/validate', Auth.restrict, (req, res)=>{
   res.json({
     name: req.user.name,
     email: req.user.email,
+    image: req.user.image,
     token: req.user.token,
     id: req.user.id
   })
@@ -22,7 +23,7 @@ router.post('/', (req, res) => {
   // const name = req.body.name,
   //       password = req.body.password,
   //       password_confirmation = req.body.password_confirmation;
-  const {name, password, password_confirmation} = req.body;
+  const {name, image, password, password_confirmation} = req.body;
 
 
   //////////////////////////////////////////////////////
@@ -31,6 +32,7 @@ router.post('/', (req, res) => {
   const errors = {
     name: [],
     email: [],
+    image: [],
     password: [],
     password_confirmation: []
   };
@@ -69,8 +71,10 @@ router.post('/', (req, res) => {
 
   // if there are no errors, create the user!
   if(!error){
+    console.log('name', name)
+    console.log('image', image)
     User
-      .generateToken(User.create, name, email, password)
+      .generateToken(User.create, name, email, image, password)
       .then(data => { // once we create the user
         res.json(data)
       })
