@@ -142,26 +142,40 @@ Events.create = (req, res, next) => {
 Events.update = (req, res, next) => {
   const id = req.params.id;
   const {name, description, time} = req.body;
-
-  db.one(`UPDATE events
+  db.one('SELECT * FROM events WHERE id = $1', [eventId]).then((event) => {
+    if (event.ownerid === Number(userId)) {
+      db.one(`UPDATE events
       SET name = $1, description = $2, time = $3 WHERE id = $4
       RETURNING id`, [name, description, time, id]).then((event) => {
-    res.locals.event = event;
-    next();
-  }).catch(err => {
-    console.log('Error fetching data from database');
-    res.status(500).json({message: 'could not update event'});
+        res.locals.event = event;
+        next();
+      }).catch(err => {
+        console.log('Error fetching data from database');
+        res.status(500).json({message: 'could not update event'});
+      });
+    } else {
+      res.status(500).json({message: "you don't own this event!"});
+      next();
+    }
   });
 };
 
 // delete a event
 Events.delete = (req, res, next) => {
   const {id} = req.params;
-
-  db.none('DELETE FROM events WHERE id = $1', [id]).then(res => {
-    next();
-  }).catch(err => {
-    console.log('Error deleting data from database');
+  const userId = req.user.id;
+  db.one('SELECT * FROM events WHERE id = $1', [id]).then((event) => {
+    if (event.ownerid === Number(userId)) {
+      db.none('DELETE FROM events WHERE id = $1', [id]).then(res => {
+        next();
+      }).catch(err => {
+        console.log('Error deleting data from database');
+      });
+    } else {
+      console.log('nope!');
+      res.status(500).json({error: "you don't own this event!"});
+      next();
+    }
   });
 };
 
@@ -169,15 +183,22 @@ Events.delete = (req, res, next) => {
 Events.addUserToEvent = (req, res, next) => {
   const eventId = req.params.id
   const userId = req.body.userId;
-  db.one(`INSERT INTO events_users (eventId, userId)
+  db.one('SELECT * FROM events WHERE id = $1', [eventId]).then((event) => {
+    if (event.ownerid === Number(userId)) {
+      db.one(`INSERT INTO events_users (eventId, userId)
   VALUES ($1, $2) RETURNING *`, [eventId, userId]).then((pair) => {
-    res.locals.pair = pair;
-    next();
-  }).catch(err => {
-    console.log('Error posting data to database');
-    res.status(500).json({message: 'could not add user to event'});
+        res.locals.pair = pair;
+        next();
+      }).catch(err => {
+        console.log('Error posting data to database');
+        res.status(500).json({message: 'could not add user to event'});
+      })
+    } else {
+      res.status(500).json({message: "you don't own this event!"});
+      next();
+    }
   });
-};
+}
 
 Events.removeSelf = (req, res, next) => {
   const eventId = req.params.eventId
