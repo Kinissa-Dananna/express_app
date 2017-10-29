@@ -182,11 +182,12 @@ Events.delete = (req, res, next) => {
 // add a row in the join table connecting a user to an event
 Events.addUserToEvent = (req, res, next) => {
   const eventId = req.params.id
-  const userId = req.body.userId;
+  const userId = req.user.id
+  const newUserId = req.body.userId;
   db.one('SELECT * FROM events WHERE id = $1', [eventId]).then((event) => {
     if (event.ownerid === Number(userId)) {
       db.one(`INSERT INTO events_users (eventId, userId)
-  VALUES ($1, $2) RETURNING *`, [eventId, userId]).then((pair) => {
+  VALUES ($1, $2) RETURNING *`, [eventId, newUserId]).then((pair) => {
         res.locals.pair = pair;
         next();
       }).catch(err => {
