@@ -7,9 +7,9 @@ router.get('/:userSearch',
   Auth.restrict,
   User.findByName,
   (req, res) => {
-      const userName = res.locals.userName;
-      const userId = res.locals.userId;
-	    res.json({userName: userName, userId: userId});
+    const userName = res.locals.userName;
+    const userId = res.locals.userId;
+    res.json({ userName: userName, userId: userId });
   });
 
 
