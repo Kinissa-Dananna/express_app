@@ -141,6 +141,7 @@ Events.create = (req, res, next) => {
 // update a event's info
 Events.update = (req, res, next) => {
   const id = req.params.id;
+  const userId = req.user.id;
   const {name, description, time} = req.body;
   db.one('SELECT * FROM events WHERE id = $1', [eventId]).then((event) => {
     if (event.ownerid === Number(userId)) {
