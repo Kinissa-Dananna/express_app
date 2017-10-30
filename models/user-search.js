@@ -9,6 +9,7 @@ Users.findByName = (req, res, next) => {
   .then((response) => {
     //console.log(response)
     res.locals.users = response
+    
     next();
   })
   .catch(err => {
