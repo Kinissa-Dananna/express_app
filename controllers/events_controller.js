@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const Events = require('../models/Events');
+const Events = require('../models/events');
 const Auth = require('../services/auth');
 
 // get all Events for a user
