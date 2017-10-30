@@ -2,7 +2,7 @@
 
 <h2> App: Bar Crawl </h2>
 
---> Need to add link to our app. <--
+<a href='http://barcrawl.surge.sh/'> Link to Bar Crawl </a>
 <br />
 <a href='https://trello.com/b/jCzgRiAz/agile-sprint'> Trello Board </a>
 <br />
