@@ -200,25 +200,32 @@ Bars.searchBars = (req, res, next) => {
 Bars.create = (req, res, next) => {
   const eventId = req.params.eventId;
   console.log(eventId);
+  console.log(req.body.barId);
   // const eventId = req.body.eventId,
   const barId = req.body.barId,
     lat = req.body.lat,
     long = req.body.long,
     name = req.body.name;
   userId = req.user.id;
-  db.one('SELECT * FROM events WHERE id = $1', [eventId]).then((event) => {
-    if (event.ownerid === Number(userId)) {
-      db.one('INSERT INTO bars (eventId, barId, lat, long, name) VALUES ($1, $2, $3, $4, $5) returning id', [eventId, barId, lat, long, name]).then(data => {
-        console.log('Data: ' + data);
-        res.locals.arrayResults = data;
+  db.none('SELECT * FROM bars WHERE barId = $1 AND eventId = $2', [barId, eventId]).then(res => {
+    db.one('SELECT * FROM events WHERE id = $1', [eventId]).then((event) => {
+      if (event.ownerid === Number(userId)) {
+        db.one(`INSERT INTO bars (eventId, barId, lat, long, name)
+        VALUES ($1, $2, $3, $4, $5) returning id`, [eventId, barId, lat, long, name]).then(data => {
+          console.log('Data: ' + data);
+          res.locals.arrayResults = data;
+          next();
+        }).catch(err => console.log('error posting bar ', err));
+      } else {
+        res.status(403).json({message: "You don't own this event!"});
         next();
-      }).catch(err => console.log('error posting bar ', err));
-    } else {
-      res.status(500).json({message: "you don't own this event!"});
-      next();
-    }
+      }
+    })
+    next();
+  }).catch(err => {
+    console.log('This bar has already been added to this event');
+    res.status(403).json({message: 'Bar has already been added'});
   })
-
 }
 
 Bars.destroy = (req, res, next) => {
@@ -231,7 +238,7 @@ Bars.destroy = (req, res, next) => {
         next();
       });
     } else {
-      res.status(500).json({message: "you don't own this event!"});
+      res.status(403).json({message: "You don't own this event!"});
       next();
     }
   })
