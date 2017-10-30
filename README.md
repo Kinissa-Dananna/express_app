@@ -2,12 +2,13 @@
 
 <h2> App: Bar Crawl </h2>
 
---> Need to add link to our app. <--
+<a href='http://barcrawl.surge.sh/'> Link to Bar Crawl </a>
 <br />
 <a href='https://trello.com/b/jCzgRiAz/agile-sprint'> Trello Board </a>
 <br />
-<a href='https://github.com/Kinissa-Dananna'> GitHub </a>
-<br />
+<h3> Description </h3>
+<p>Bar Crawl is an event planning app. You can use Bar Crawl to plan a night out with friends and make a plan for what bars you want to hit as you bar hop. All of your events are stored in one place and you can directly add friends to an event.</p>
+<br/>
 <h3> Techonologies </h3>
 <ul>
   <li> Javascript </li>
@@ -15,6 +16,7 @@
   <li> React Router </li>
   <li> Express.js </li>
   <li> Axios </li>
+  <li> Token Authentication </li>
   <li> HTML </li>
   <li> CSS </li>
 </ul>
@@ -26,7 +28,7 @@
 
 <br />
 
-<h3> User Stories </h3>
+<h3> User Stories from Trello</h3>
 <p> As a user I want to be able to be able to search for bars near a given location. As a user I want to be able to create an event at a bar. As a user I want to be able to add other user's to my event. As a user, I want to click a button to delete, so I can delete an event from my list. As a user I want to be able to edit my events to update information. As a user, I want to click an event card, so I can display in depth single view page for that event. </p> 
 
 <p> As a front end dev, I want to render a bar page with in depth information about a single bar. As a front end dev, I want to render a singular in-depth event page so I can display all the saved information about an event. As a front end dev, I want to render a landing page with login functionality. As a front end dev, I want to create a single event card so I can display basic information about my event. As a front end dev, I want to render multiple event cards so I can display a basic newsfeed for a user. As a front end dev, I want to render a delete button so I can allow the user to delete saved events. As a front end dev, I want to render a nav bar with links to different pages in the app. As a front end dev, I want to style the app for aesthetic. As a front end dev, I want to render a bar page with in depth information about a single bar. As a front end dev, I want to render a singular in-depth event page so I can display all the saved information about an event. </p>

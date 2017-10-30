@@ -172,7 +172,7 @@ Bars.searchNearbyBars = (req, res, next) => {
   axios.get(`https://api.foursquare.com/v2/venues/search?ll=${lat},${long}&categoryId=4d4b7105d754a06376d81259&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&v=${DATE}&limit=10&radius=1500`).then(response => {
     const fiveResults = response.data.response.venues;
     res.locals.fiveResults = fiveResults.map(result => {
-      return {barId: result.id, name: result.name, lat: result.location.lat, long: result.location.lng}
+      return { barId: result.id, name: result.name, lat: result.location.lat, long: result.location.lng }
     });
     console.log(res.locals.fiveResults);
     next();
@@ -187,7 +187,7 @@ Bars.searchBars = (req, res, next) => {
   axios.get(`https://api.foursquare.com/v2/venues/search?ll=${lat},${long}&query=${searchTerm}&categoryId=4d4b7105d754a06376d81259&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&v=${DATE}&limit=10`).then(response => {
     const fiveResults = response.data.response.venues;
     res.locals.fiveResults = fiveResults.map(result => {
-      return {barId: result.id, name: result.name, lat: result.location.lat, long: result.location.lng}
+      return { barId: result.id, name: result.name, lat: result.location.lat, long: result.location.lng }
     });
     next();
   }).catch(err => console.log('error in places.search ', err));
@@ -229,7 +229,7 @@ Bars.create = (req, res, next) => {
 }
 
 Bars.destroy = (req, res, next) => {
-  const {eventId} = req.params;
+  const { eventId } = req.params;
   const id = Number(req.params.id);
   const userId = req.user.id;
   db.one('SELECT * FROM events WHERE id = $1', [eventId]).then((event) => {

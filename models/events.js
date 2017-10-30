@@ -33,11 +33,11 @@ Events.findUsersForEvent = (req, res, next) => {
     JOIN events
     ON events.id = events_users.eventId
     WHERE events.id = $1`, [eventId]).then((users) => {
-    res.locals.users = users;
-    next();
-  }).catch(err => {
-    console.log('Error getting data from database');
-  });
+      res.locals.users = users;
+      next();
+    }).catch(err => {
+      console.log('Error getting data from database');
+    });
 };
 
 // find all bars for a single event
@@ -60,16 +60,16 @@ Events.findAllForUser = (req, res, next) => {
     JOIN users
     ON users.id = events_users.userId
     WHERE users.id = $1`, [userId]).then((events) => {
-    res.locals.events = events;
-    next();
-  }).catch(err => {
-    console.log('Error getting data from database');
-  });
+      res.locals.events = events;
+      next();
+    }).catch(err => {
+      console.log('Error getting data from database');
+    });
 };
 
 // get all users for a batch of events
 Events.findUsersForEventBatch = (req, res, next) => {
-  const {events} = res.locals;
+  const { events } = res.locals;
   db.task(t => {
     return t.batch(events.map(event => {
       return t.manyOrNone(`SELECT users.id, users.name, users.email FROM users
@@ -87,7 +87,7 @@ Events.findUsersForEventBatch = (req, res, next) => {
 
 // get all bars for a batch of events
 Events.findBarsForEventBatch = (req, res, next) => {
-  const {events} = res.locals;
+  const { events } = res.locals;
   db.task(t => {
     return t.batch(events.map(event => {
       return t.manyOrNone(`SELECT * FROM bars WHERE eventId = $1`, [event.id])
@@ -100,7 +100,7 @@ Events.findBarsForEventBatch = (req, res, next) => {
 
 // get all owners for a batch of events
 Events.findOwnersForEventBatch = (req, res, next) => {
-  const {events} = res.locals;
+  const { events } = res.locals;
   db.task(t => {
     return t.batch(events.map(event => {
       return t.manyOrNone(`SELECT id, name, email FROM users WHERE id = $1`, [event.ownerid])
@@ -126,16 +126,16 @@ Events.findById = (req, res, next) => {
 Events.create = (req, res, next) => {
   const ownerId = req.user.id;
   console.log(ownerId);
-  const {name, description, time} = req.body;
+  const { name, description, time } = req.body;
   db.one(`INSERT INTO events (name, description, time, ownerId)
   VALUES ($1, $2, $3, $4) RETURNING id`, [name, description, time, ownerId]).then((event) => {
-    console.log(event);
-    res.locals.event = event;
-    next();
-  }).catch(err => {
-    console.log('Error fetching data from database from Create Event');
-    res.status(500).json({message: 'could not create event'});
-  });
+      console.log(event);
+      res.locals.event = event;
+      next();
+    }).catch(err => {
+      console.log('Error fetching data from database from Create Event');
+      res.status(500).json({ message: 'could not create event' });
+    });
 };
 
 // update a event's info
@@ -148,12 +148,12 @@ Events.update = (req, res, next) => {
       db.one(`UPDATE events
       SET name = $1, description = $2, time = $3 WHERE id = $4
       RETURNING id`, [name, description, time, id]).then((event) => {
-        res.locals.event = event;
-        next();
-      }).catch(err => {
-        console.log('Error fetching data from database');
-        res.status(500).json({message: 'could not update event'});
-      });
+          res.locals.event = event;
+          next();
+        }).catch(err => {
+          console.log('Error fetching data from database');
+          res.status(500).json({ message: 'could not update event' });
+        });
     } else {
       res.status(403).json({message: "you don't own this event!"});
       next();
@@ -163,7 +163,7 @@ Events.update = (req, res, next) => {
 
 // delete a event
 Events.delete = (req, res, next) => {
-  const {id} = req.params;
+  const { id } = req.params;
   const userId = req.user.id;
   db.one('SELECT * FROM events WHERE id = $1', [id]).then((event) => {
     if (event.ownerid === Number(userId)) {
