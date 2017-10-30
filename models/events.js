@@ -16,7 +16,7 @@ Events.findAllForOwner = (req, res, next) => {
 // find an event's owner
 Events.findOwnerForEvent = (req, res, next) => {
   const ownerId = res.locals.event.ownerId;
-  db.manyOrNone('SELECT name, email FROM users WHERE id = $1', [ownerId]).then((owner) => {
+  db.manyOrNone('SELECT name, email, image FROM users WHERE id = $1', [ownerId]).then((owner) => {
     res.locals.owner = owner;
     next();
   }).catch(err => {
@@ -141,8 +141,9 @@ Events.create = (req, res, next) => {
 // update a event's info
 Events.update = (req, res, next) => {
   const id = req.params.id;
-  const { name, description, time } = req.body;
-  db.one('SELECT * FROM events WHERE id = $1', [eventId]).then((event) => {
+  const userId = req.user.id;
+  const {name, description, time} = req.body;
+  db.one('SELECT * FROM events WHERE id = $1', [id]).then((event) => {
     if (event.ownerid === Number(userId)) {
       db.one(`UPDATE events
       SET name = $1, description = $2, time = $3 WHERE id = $4
@@ -154,7 +155,7 @@ Events.update = (req, res, next) => {
           res.status(500).json({ message: 'could not update event' });
         });
     } else {
-      res.status(500).json({ message: "you don't own this event!" });
+      res.status(403).json({message: "you don't own this event!"});
       next();
     }
   });
@@ -173,7 +174,7 @@ Events.delete = (req, res, next) => {
       });
     } else {
       console.log('nope!');
-      res.status(500).json({ error: "you don't own this event!" });
+      res.status(403).json({error: "you don't own this event!"});
       next();
     }
   });
@@ -184,21 +185,32 @@ Events.addUserToEvent = (req, res, next) => {
   const eventId = req.params.id
   const userId = req.user.id
   const newUserId = req.body.userId;
-  db.one('SELECT * FROM events WHERE id = $1', [eventId]).then((event) => {
-    if (event.ownerid === Number(userId)) {
-      db.one(`INSERT INTO events_users (eventId, userId)
-  VALUES ($1, $2) RETURNING *`, [eventId, newUserId]).then((pair) => {
-        res.locals.pair = pair;
-        next();
-      }).catch(err => {
-        console.log('Error posting data to database');
-        res.status(500).json({message: 'could not add user to event'});
-      })
-    } else {
-      res.status(500).json({ message: "you don't own this event!" });
+  if (userId !== newUserId) {
+    db.none('SELECT * FROM events_users WHERE eventId = $1 AND userId = $2', [eventId, newUserId]).then((response) => {
+      db.one('SELECT * FROM events WHERE id = $1', [eventId]).then((event) => {
+        if (event.ownerid === Number(userId)) {
+          db.one(`INSERT INTO events_users (eventId, userId)
+          VALUES ($1, $2) RETURNING *`, [eventId, newUserId]).then((pair) => {
+            res.locals.pair = pair;
+            next();
+          }).catch(err => {
+            console.log('Error posting data to database');
+            res.status(500).json({message: 'Could not add user to event'});
+          })
+        } else {
+          res.status(403).json({message: "You don't own this event!"});
+          next();
+        }
+      });
       next();
-    }
-  });
+    }).catch(err => {
+      console.log('user is already part of this event');
+      res.status(403).json({message: 'User has already been added'});
+    })
+  } else {
+    res.status(403).json({message: "You can't add yourself!"});
+    next();
+  }
 }
 
 Events.removeSelf = (req, res, next) => {
@@ -206,27 +218,27 @@ Events.removeSelf = (req, res, next) => {
   const userId = req.user.id;
   db.none(`DELETE FROM events_users
   WHERE eventId = $1 AND userId = $2`, [eventId, userId]).then(() => {
-      next();
-    }).catch(err => {
-      console.log('Error posting data to database');
-      res.status(500).json({ message: 'could not add user to event' });
-    });
+    next();
+  }).catch(err => {
+    console.log('Error posting data to database');
+    res.status(500).json({message: 'Could not add user to event'});
+  });
 };
 
 Events.removeUser = (req, res, next) => {
   const eventId = req.params.eventId
   const userId = req.params.userId;
   db.one('SELECT * FROM events WHERE id = $1', [eventId]).then((event) => {
-    if (event.ownerid === Number(userId)) {
+    if (event.ownerid === Number(req.user.id)) {
       db.none(`DELETE FROM events_users
     WHERE eventId = $1 AND userId = $2`, [eventId, userId]).then(() => {
-          next();
-        }).catch(err => {
-          console.log('Error posting data to database');
-          res.status(500).json({ message: 'could not add user to event' });
-        });
+        next();
+      }).catch(err => {
+        console.log('Error posting data to database');
+        res.status(500).json({message: 'Could not add user to event'});
+      });
     } else {
-      res.status(500).json({ message: "you don't own this event!" });
+      res.status(403).json({message: "You don't own this event!"});
       next();
     }
   });
