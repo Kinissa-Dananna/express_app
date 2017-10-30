@@ -1,12 +1,12 @@
 const User = require('../models/user'),
-      router = require('express').Router(),
-      Auth = require('../services/auth');
+  router = require('express').Router(),
+  Auth = require('../services/auth');
 
 // route that validates the user
 // basically a way to ping the server to make sure the token cookie is correct
 // and to get the user's information
 // We use the Auth.restrict to restrict it to only calls using the auth_token
-router.get('/validate', Auth.restrict, (req, res)=>{
+router.get('/validate', Auth.restrict, (req, res) => {
   res.json({
     name: req.user.name,
     email: req.user.email,
@@ -23,7 +23,7 @@ router.post('/', (req, res) => {
   // const name = req.body.name,
   //       password = req.body.password,
   //       password_confirmation = req.body.password_confirmation;
-  const {name, image, password, password_confirmation} = req.body;
+  const { name, image, password, password_confirmation } = req.body;
 
 
   //////////////////////////////////////////////////////
@@ -46,7 +46,7 @@ router.post('/', (req, res) => {
     // If it does not have the field
     // the split and join is so we take out any spaces.
     // this will make sure someone doesn't enter just spaces for one of the fields
-    if(!req.body[key].split(' ').join('')){
+    if (!req.body[key].split(' ').join('')) {
       // add a message to the error object for that field
       // (the split and join here is so we can get rid of the _ in password_confirmation)
       errors[key].push(`${key.split('_').join(' ')} is required`);
@@ -55,14 +55,14 @@ router.post('/', (req, res) => {
   })
 
   // make sure the password matches the confirmation
-  if(password !== password_confirmation){
+  if (password !== password_confirmation) {
     errors.password_confirmation.push("Password does not match confirmation.");
     error = true;
   }
 
   // make sure the email is a valid email address using regex!
   var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  if(!re.test(email)){
+  if (!re.test(email)) {
     errors.email.push("Not a valid email address.");
     error = true;
   }
@@ -70,7 +70,7 @@ router.post('/', (req, res) => {
   //////////////////////////////////////////////////////
 
   // if there are no errors, create the user!
-  if(!error){
+  if (!error) {
     console.log('name', name)
     console.log('image', image)
     User
@@ -81,7 +81,7 @@ router.post('/', (req, res) => {
       .catch(err => console.log(err))
   } else { // if there are errors from our validations
     // send back a 400 (bad request) status with the errors
-    res.status(400).json({errors: errors})
+    res.status(400).json({ errors: errors })
   }
 });
 

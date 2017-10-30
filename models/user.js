@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs'),
-      db = require('../db/config')
+  db = require('../db/config')
 
 const User = {
   // define a recursive method to generate a token
@@ -12,7 +12,7 @@ const User = {
     // exist in our database
     return db.oneOrNone('SELECT id FROM users WHERE token = $1', [token])
       .then((res) => { // once we get the response
-        if(res){ // if there is a user with that token
+        if (res) { // if there is a user with that token
           // redo this function and return the result
           return generateToken();
         }
