@@ -15,7 +15,7 @@ Events.findAllForOwner = (req, res, next) => {
 
 // find an event's owner
 Events.findOwnerForEvent = (req, res, next) => {
-  const ownerId = res.locals.event.ownerId;
+  const ownerId = res.locals.event.ownerid;
   db.manyOrNone('SELECT name, email, image FROM users WHERE id = $1', [ownerId]).then((owner) => {
     res.locals.owner = owner;
     next();

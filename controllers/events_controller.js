@@ -44,7 +44,7 @@ router.get('/:id',
   Events.findBarsForEvent,
   (req, res) => {
     const event = res.locals.event;
-    event.owner = res.locals.owner;
+    event.owner = res.locals.owner[0];
     event.attendees = res.locals.users;
     event.bars = res.locals.bars;
     res.json(event);
