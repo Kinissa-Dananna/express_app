@@ -143,7 +143,7 @@ Events.update = (req, res, next) => {
   const id = req.params.id;
   const userId = req.user.id;
   const {name, description, time} = req.body;
-  db.one('SELECT * FROM events WHERE id = $1', [eventId]).then((event) => {
+  db.one('SELECT * FROM events WHERE id = $1', [id]).then((event) => {
     if (event.ownerid === Number(userId)) {
       db.one(`UPDATE events
       SET name = $1, description = $2, time = $3 WHERE id = $4
